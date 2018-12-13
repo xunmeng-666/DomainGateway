@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Matrix Admin</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/static/css/bootstrap-responsive.min.css" />
+<link rel="stylesheet" href="/static/css/uniform.css" />
+<link rel="stylesheet" href="/static/css/select2.css" />
+<link rel="stylesheet" href="/static/css/matrix-style.css" />
+<link rel="stylesheet" href="/static/css/matrix-media.css" />
+<link rel="stylesheet" href="/static/css/iconfont.css" />
+<link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet" />/
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<!--Header-part-->
+
+<div id="header">
+  <h1><a href="dashboard.html">CloudFly</a></h1>
+</div>
+<!--close-Header-part-->
+
+
+<!--top-Header-menu-->
+<div id="user-nav" class="navbar navbar-inverse">
+    <ul class="nav" style="width: auto; margin: 0px;">
+        <li  class="dropdown" id="profile-messages" >
+            <a title="" href="#" data-toggle="dropdown" data-target="#profile-messages" class="dropdown-toggle">
+                <i class="icon icon-user"></i>
+                <span class="text">{{ user }}</span>
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu" id="myModal">
+                <li><a href="#" data-toggle="modal" data-target="#myModal"> 个人信息</a></li>
+                <li class="divider"></li>
+                <li><a href="/accounts/logout/">退出</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+
+<script src="/static/js/jquery.min.js"></script>
+
+<script>
+    $(function () {
+        bindBtn();
+    });
+
+    function bindBtn() {
+        $('#save').click(function () {
+            console.log('点击1');
+            var p = $("#old_password").val();
+            console.log('点击2');
+            var new_p = $("#new_password").val();
+            console.log('点击3');
+            var re_p = $("#re_password").val();
+            console.log('点击4');
+            $.ajax({
+{#                                    header:{"X-CSRFToken":$.cookie('csrftoken')},#}
+                url: '/change_password/',
+                type: "POST",
+                data: {pwd:p,new_pwd:new_p,re_pwd:re_p},
+
+                success:function (data) {
+                    console.log('点击5');
+                    var data_dict = JSON.parse(data);
+                    if(data_dict.status){
+                        alert('密码修改成功,即将重新登录系统');
+                        location.href = "/"
+                    }else{
+                        alert(data_dict.error);
+                    }
+                }
+            })
+
+        })
+    }
+
+</script>
+
+
+<div id="sidebar"><a href="#" class="visible-phone">
+    <i class="icon icon-home"></i>访问列表</a>
+    <ul>
+        <li class="active"><a href="/"><i class="icon icon-desktop"></i>
+            <span>访问列表</span></a> </li>
+        <li class="submenu"><a href="#"><i class="icon icon-cloud"></i> <span>网站</span></a>
+            <ul>
+                <li>
+                    <a href="/apps/asset/list/"><span>网站列表</span></a>
+                    <a href="/apps/assetgroup/list/"><span>组</span></a>
+                </li>
+            </ul>
+        </li>
+
+        <li > <a href="/asset/logs/"><i class="icon icon-book"></i> <span>日志</span></a> </li>
+        <li class="submenu"><a href="#"><i class="icon icon-cog"></i> <span>设置</span></a>
+        <ul>
+            <li><a href="/asset/system/settings/"><span>系统设置</span></a> </li>
+            <li><a href="/asset/system/admin/"><span>用户管理</span></a> </li>
+        </ul>
+        </li>
+    </ul>
+</div>
+
+<!--sidebar-menu-->
+<div id="content">
+    {% block centent %}{% endblock %}
+</div>
+
+<!--end-Footer-part-->
+
+<script src="/static/js/excanvas.min.js"></script>
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/jquery.ui.custom.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+<script src="/static/js/jquery.flot.min.js"></script>
+<script src="/static/js/jquery.flot.resize.min.js"></script>
+<script src="/static/js/jquery.peity.min.js"></script>
+<script src="/static/js/fullcalendar.min.js"></script>
+<script src="/static/js/matrix.js"></script>
+<script src="/static/js/matrix.dashboard.js"></script>
+<script src="/static/js/jquery.gritter.min.js"></script>
+<script src="/static/js/matrix.interface.js"></script>
+<script src="/static/js/matrix.chat.js"></script>
+<script src="/static/js/jquery.validate.js"></script>
+<script src="/static/js/matrix.form_validation.js"></script>
+<script src="/static/js/jquery.wizard.js"></script>
+<script src="/static/js/jquery.uniform.js"></script>
+<script src="/static/js/select2.min.js"></script>
+<script src="/static/js/matrix.popover.js"></script>
+<script src="/static/js/jquery.dataTables.min.js"></script>
+<script src="/static/js/matrix.tables.js"></script>
+<script src="/static/js/iconfont.js"></script>
+{% block script %}{% endblock %}
+<script type="text/javascript">
+  // This function is called from the pop-up menus to transfer to
+  // a different page. Ignore if the value returned is a null string:
+  function goPage (newURL) {
+
+      // if url is empty, skip the menu dividers and reset the menu selection to default
+      if (newURL != "") {
+
+          // if url is "-", it is this page -- reset the menu:
+          if (newURL == "-" ) {
+              resetMenu();
+          }
+          // else, send page to designated URL
+          else {
+            document.location.href = newURL;
+          }
+      }
+  }
+
+
+
+
+// resets the menu selection upon entry to this page:
+function resetMenu() {
+   document.gomenu.selector.selectedIndex = 2;
+}
+</script>
+</body>
+</html>

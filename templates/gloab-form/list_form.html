@@ -1,0 +1,190 @@
+{% extends 'bash/bash-index.html' %}
+{% block head%}
+
+{% endblock %}
+{% block centent %}
+{% load deploy_tag %}
+
+<div id="content-header">
+    <ol class="breadcrumb" style="background-color: #ffffff">
+        <a href="/" class="tip-bottom" data-original-title="Go to Home"><i class="icon-home"></i>Home </a>>
+        <a href="/asset/{{ model_name }}/" class="tip-bottom" data-original-title="">{% build_project_verbose_name admin_class %}</a>>
+        <a href="/asset/{{ model_name }}/" title="网站信息表" class="tip-bottom" data-original-title="">{% build_project_verbose_name admin_class %}信息表</a>
+    </ol>
+</div>
+<div class="container-fluid">
+    <div class="col-lg-12 class-title">
+        <div class="ibox float-e-margins" id="all">
+            <div class="quick-actions">
+                <h2>{% build_project_verbose_name admin_class %}</h2>
+            </div>
+            <div class="row-fluid">
+                <div class="span9">
+                    <div class="col-sm-1">
+                        <a href="/apps/{{ model_name }}/add/" class="btn btn-success btn-sm">添加{% build_project_verbose_name admin_class %}</a>
+                    </div>
+                </div>
+                <form>
+                    <div id="search" style="top: 107px;">
+                        <input type="search" name="_q" value="{% if querysets.q_val %}{{ querysets.q_val }}{% endif %}" placeholder="{% for s_field in admin_class.search_fields%}{{ s_field }} {% endfor %}" PLACEHOLDER="搜索" />
+                        <button type="submit" class="tip-bottom" data-original-title="Search"><i class="icon-search icon-white"></i></button>
+                    </div>
+                </form>
+            </div>
+            {% get_filter_condtions_string querysets.filter_conditions querysets.q_val as  filter_condtions_string %}
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <form method="post" >{% csrf_token %}
+                        <table class="table table-bordered ">
+                            <thead>
+                                <tr>
+                                    {% if not  admin_class.list_filter %}
+                                        {{ model_name }}
+                                    {% else %}
+                                        <th class='text-center'>
+                                            <input onclick="checkAll(this)" type="checkbox" />
+                                        </th>
+                                            {% for column in admin_class.list_filter %}
+                                                {% if column == 'ID' %}
+                                                {{ pass }}{% else %}
+                                                    <th class='text-center'>
+                                                    {% if order_column == column  %}
+                                                       {{ column }}
+                                                        {% generate_orderby_icon  querysets.new_order_key %}
+                                                    {% else %}
+                                                        {{ column }}
+                                                    {% endif %}
+                                                    </th>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                        <th class='text-center' >操作</th>
+                                    {% endif %}
+                                </tr>
+                            </thead>
+                            <tbody id="tbody" class="tab-content responsive">
+                                {% for row in querysets.querysets %}
+                                <div class="col-lg-12">
+                                    <div method="post" id="content-info">
+                                        {% if model_name == 'asset' %}
+                                        <tr class='gradeX '  >
+                                            <td class='text-center' style="text-align: center">
+                                                <input type='checkbox'  class='row-obj' name ='_selected_obj'  value='{{ row.id }}'></td>
+                                            <td style="text-align: center">
+                                                <a href="/asset/{{ app_name }}/{{ model_name }}/detail/?id={{ row.id }}&name={{ row.name }}">{{ row.name }}</a>
+                                            </td>
+                                            <td style="text-align: center">
+                                                <a href="">{{ row.domain }}</a>
+                                            </td>
+                                            <td style="text-align: center">{{ row.ip }}</td>
+                                            <td style="text-align: center">{{ row.group }}</td>
+                                            <td style="text-align: center">{{ row.remarks }}</td>
+                                            <form method='POST'>
+                                                {% csrf_token %}
+                                                <td class="text-center" style="text-align: center">
+                                                    <a href="/apps/{{ model_name }}/change/?project_id={{ row.id }}" class="btn btn-mini btn-info asset_del"  >编辑</a>
+                                                    <a href="/apps/{{ model_name }}/del/?idAll={{ row.id }}" class="btn btn-mini btn-danger asset_del"  >删除</a>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        {% elif model_name == 'assetgroup' %}
+                                            <tr class='gradeX '  >
+                                            <td class='text-center' style="text-align: center">
+                                                <input type='checkbox'  class='row-obj' name ='_selected_obj'  value='{{ row.id }}'></td>
+                                            <td style="text-align: center">
+                                                <a href="/asset/{{ app_name }}/{{ model_name }}/detail/?id={{ row.id }}&name={{ row.name }}">{{ row.name }}</a>
+                                            </td>
+
+                                            <td style="text-align: center">{{ row.remarks }}</td>
+                                            <form method='POST'>
+                                                {% csrf_token %}
+                                                <td class="text-center" style="text-align: center">
+                                                    <a href="/apps/{{ model_name }}/change/?project_id={{ row.id }}" class="btn btn-mini btn-info asset_del"  >编辑</a>
+                                                    <a href="/apps/{{ model_name }}/del/?idAll={{ row.id }}" class="btn btn-mini btn-danger asset_del"  >删除</a>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="content">
+                            <tr>
+                                <td><input onclick="all_del_file(this) "  type='button' class='btn btn-danger btn-mini' value='删除' /></td>
+                            </tr>
+                        </div>
+                    </form>
+                    <div class="pagination">
+                        <ul class="pagination">
+                            <li class=""><a href="?_page=1{{ filter_condtions_string }}">首页 </a></li>
+                            {% for p in querysets.paginator.page_range %}
+                                {% get_abs_value p  querysets.querysets.number as i %}
+                                {% if i < 3 %}
+                                    {% if p == querysets.querysets.number %}
+                                        <li class="active"><a href="?_page={{ p }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">{{ p }} </a></li>
+                                    {% else %}
+                                        <li class=""><a href="?_page={{ p }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">{{ p }}</a></li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            <li class="">
+                                <a  href="?_page={{ paginator.num_pages }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">尾页</a>
+                            </li>
+                            <li class="">
+                                <a>总计 {{ querysets.querysets.paginator.num_pages }}页</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function all_del_file(self) {
+    var check = document.getElementsByName("_selected_obj");
+    var len = check.length;
+    var idAll = "";
+    for (var i = 0; i<len;i++){
+        if(check[i].checked){
+            idAll += check[i].value+',';
+        }
+    }
+    if(isNaN(parseInt(idAll))){
+        alert('没有选择要删除的项目')
+        return false
+    }
+    $.ajax({
+        url:"/apps/{{ model_name }}/del/?idAll=" + idAll,
+        type: 'post',
+        success:function (data) {
+            console.log('data',JSON.parse(data))
+            datas = JSON.parse(data)
+
+            alert('删除成功');
+            location.reload(true)
+        }
+    })
+}
+
+
+function checkAll(self) {
+    if ( $(self).prop('checked')){
+
+        $("table .row-obj").prop('checked',true)
+    }else {
+         $("table .row-obj").prop('checked',false)
+    }
+}
+
+
+</script>
+
+
+{% endblock %}
