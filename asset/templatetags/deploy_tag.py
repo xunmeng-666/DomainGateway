@@ -73,3 +73,7 @@ def get_m2m_objects(admin_class,field_name,selected_objs):
     field_obj = getattr(admin_class.model,field_name)
     all_objects = field_obj.rel.to.objects.all()
     return set(all_objects) - set(selected_objs)
+
+@register.simple_tag
+def build_groups(admin_class,row):
+    return admin_class.model.objects.filter(id=row.id).values('assetgroup__name')[0]['assetgroup__name']

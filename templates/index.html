@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>域名网关</title>
+<title>云计算项目列表</title>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
@@ -12,68 +12,63 @@
 <link rel="stylesheet" href="/static/css/matrix-media.css" />
 <link rel="stylesheet" href="/static/css/iconfont.css" />
 <link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet" />/
-
+<style type="text/css">
+    table td:hover{
+        display: block;
+    }
+    #text a:hover{
+        background-color: #afafaf;
+        display: inline;
+    }
+</style>
 </head>
 
 <body style="background-image: url('/static/img/index.jpg');background-size: cover;background-attachment:fixed ">
-<div class="text-right" >
-    <a href="/apps/asset/list/" class="btn btn-info btn-mini">管理入口</a>
-</div>
+
 <div id="content" style=" background: none">
-    <div id="content" style=" background: none">
-        <h1>项目列表</h1>
+    <div class="row" style=" background: none">
+        <div class="text-center" style="width: 73%;border-bottom: 0px solid">
+        <h1 style="color: white">云计算项目列表</h1>
+        </div>
     </div>
 
-    <div class="row">
+    <div class="row" style="padding: 1% 0px;margin-left: 5%;width: 70%">
         <div class="row-fluid">
-            <hr>
-            <div class="span6">
-                <div class="container-fluid">
-                {% for row in querysets.querysets %}
-                    <div class="control-group">
-                        <div id="content" style=" font-size: 18px;" class="text-success" >
+            <div class="widget-content" style="width: 100%;border-bottom: 0px solid">
+                <span style="color: white;font-size: 18px;margin-left: 5%">项目列表</span>
+                <span style="margin-left: 70%;height: 10px"><a href="/apps/asset/list/" class="btn btn-success btn-mini">管理入口</a></span>
+            </div>
+            <table class="table table-bordered" style="width: 100%;">
+                <thead>
+                    <tr >
+                        <th class='text-center' style="font-size: 15px;color: #000000">网站</th>
+                        <th class='text-center'style="font-size: 15px;color: #000000" >名称</th>
+
+                    </tr>
+                </thead>
+                <tbody id="tbody" class="tab-content table-bordered" style="background-color: #d0d0d0;opacity: 0.7">
+                    {% for row in querysets.querysets %}
+                        <tr style="opacity: 1">
                             {% if 'http'  in row.domain or 'https' in row.domain %}
-                                <a href="{{ row.domain }}"  ><span class="text-left span8">{{ row.domain }}</span></a>
-                                <span class="text-nowrap span2">{{ row.name }}</span>
+                                <td style="text-align: center;font-size: 14px">
+                                <a href="{{ row.domain }}:{{ row.sport }}"  >{{ row.domain }}:{{ row.sport }}</a>
+                                <td style="text-align: center;font-size: 14px">{{ row.name }}</td>
                             {% else %}
-                            <a href="http://{{ row.domain }}"  ><span class="text-left span8">{{ row.domain }}</span></a>
-                            <span class="text-nowrap span2">{{ row.name }}</span>
+                                <td style="text-align: center;font-size: 14px;font-weight: bold;" id="text">
+                                    <a href="http://{{ row.domain }}:{{ row.sport }}" style="color: #212121c4" >{{ row.domain }}:{{ row.sport }}</a>
+                                <td style="text-align: center;font-size: 14px;color: #212121c4;font-weight: bold">{{ row.name }}</td>
                             {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            </div>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
         </div>
     </div>
 
 </div>
 
-
-{#<div id="sidebar" class="center-block">#}
-{#    <a href="#" class="visible-phone">#}
-{#    <i class="icon icon-home"></i> Dashboard</a>#}
-{#    <ul>#}
-{#        <li class="active"><a href="/"><i class="icon icon-desktop"></i>#}
-{#            <span>Dashboard</span></a> </li>#}
-{#        <li class="submenu"><a href="#"><i class="icon icon-cloud"></i> <span>网站</span></a>#}
-{#            <ul>#}
-{#                <li>#}
-{#                    <a href="/apps/asset/list/"><span>网站列表</span></a>#}
-{#                    <a href="/apps/assetgroup/list/"><span>组</span></a>#}
-{#                </li>#}
-{#            </ul>#}
-{#        </li>#}
-{##}
-{#        <li > <a href="/asset/logs/"><i class="icon icon-book"></i> <span>日志</span></a> </li>#}
-{#        <li class="submenu"><a href="#"><i class="icon icon-cog"></i> <span>设置</span></a>#}
-{#        <ul>#}
-{#            <li><a href="/asset/system/settings/"><span>系统设置</span></a> </li>#}
-{#            <li><a href="/asset/system/admin/"><span>用户管理</span></a> </li>#}
-{#        </ul>#}
-{#        </li>#}
-{#    </ul>#}
-{#</div>#}
 
 </body>
 </html>

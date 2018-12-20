@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^accounts/logout/', views.account_logout),
     url(r'^$', views.index),
     url(r'^apps/', include("asset.urls")),
+    url(r'^api/', include("asset.api.urls")),
 ]

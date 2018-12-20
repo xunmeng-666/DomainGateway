@@ -12,9 +12,9 @@
     </ol>
 
     {{ form_obj.errors }}
-    <form class="form-horizontal" id="forms" method="post">{% csrf_token %}
+    <form class="form-horizontal" id="forms" method="post" enctype="multipart/form-data">{% csrf_token %}
         {% for field in form_obj %}
-            <div class="form-group">
+            <div class="form-group" id="form-{{ field.name }}">
                 <label class=" control-label">
                     {% if field.field.required %}
                     {{ field.label }}
@@ -48,7 +48,11 @@
                                 </div>
                             </div>
                         {% else %}
-                            {{ field }}
+                            {% if field.name == 'ssl' %}
+                                <input type="file" title="选择证书文件" name="ssl">
+                            {% else %}
+                                {{ field }}
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                     <span style="color:gray;font-size: 10px">{{ field.help_text }}</span>
@@ -67,7 +71,31 @@
 </div>
 
 <script>
+$(function () {
+    var httpd = document.getElementById('id_http');
+    var ssld = document.getElementById('form-ssl');
+    if (httpd.value == '0'){
+        displays(ssld,'none')
+    }else {
+        displays(ssld,'block')
+    }
 
+})
+
+$("#id_http").change(function () {
+    var http_val = this.value;
+    var ssld = document.getElementById('form-ssl');
+    if (http_val == 0){
+        displays(ssld,'none')
+    }else {
+        displays(ssld,'block')
+    }
+})
+
+function displays(ssld,func) {
+    ssld.style.display = func;
+    return true
+}
 
 </script>
 

@@ -73,11 +73,13 @@
                                             <td style="text-align: center">
                                                 <a href="/asset/{{ app_name }}/{{ model_name }}/detail/?id={{ row.id }}&name={{ row.name }}">{{ row.name }}</a>
                                             </td>
-                                            <td style="text-align: center">
-                                                <a href="">{{ row.domain }}</a>
-                                            </td>
+                                            <td style="text-align: center"><a>{{ row.get_http_display }}</a></td>
+                                            <td style="text-align: center"><a href="{{ row.domain }}">{{ row.domain }}</a></td>
+                                            <td style="text-align: center">{{ row.sport }}</td>
                                             <td style="text-align: center">{{ row.ip }}</td>
-                                            <td style="text-align: center">{{ row.group }}</td>
+                                            <td style="text-align: center">{{ row.dport }}</td>
+                                            <td style="text-align: center">{{ row.ssl }}</td>
+                                            <td style="text-align: center">{% build_groups admin_class row %}</td>
                                             <td style="text-align: center">{{ row.remarks }}</td>
                                             <form method='POST'>
                                                 {% csrf_token %}
@@ -91,9 +93,8 @@
                                             <tr class='gradeX '  >
                                             <td class='text-center' style="text-align: center">
                                                 <input type='checkbox'  class='row-obj' name ='_selected_obj'  value='{{ row.id }}'></td>
-                                            <td style="text-align: center">
-                                                <a href="/asset/{{ app_name }}/{{ model_name }}/detail/?id={{ row.id }}&name={{ row.name }}">{{ row.name }}</a>
-                                            </td>
+                                            <td style="text-align: center"><a href="/asset/{{ app_name }}/{{ model_name }}/detail/?id={{ row.id }}&name={{ row.name }}">{{ row.name }}</a></td>
+                                            <td style="text-align: center">{{ row.asset.count }}</td>
 
                                             <td style="text-align: center">{{ row.remarks }}</td>
                                             <form method='POST'>

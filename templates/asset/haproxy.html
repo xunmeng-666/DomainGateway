@@ -1,0 +1,149 @@
+{% extends 'bash/bash-index.html' %}
+{% block centent %}
+
+<div id="content-header">
+    <ol class="breadcrumb" style="background-color: #ffffff">
+        <a href="/" class="tip-bottom" data-original-title="Go to Home"><i class="icon-home"></i>Home </a>>
+        <a href="/apps/asset/haproxy/" class="tip-bottom" data-original-title="">HAproxy</a>>
+    </ol>
+</div>
+<div class="container-fluid">
+    <div class="col-lg-12 class-title">
+        <div class="ibox float-e-margins" id="all">
+            <div class="quick-actions span10">
+                <label class="text-left span1" style="font-size: 18px">HAproxy</label>
+                <label class="text-left span2">运行状态:  <i class="icon-refresh" id="status" ></i>
+                    <i id="run"> </i></label>
+                <label class="text-left span4">
+                    <button onclick="select(this)" data-toggle="modal" data-target="#selectModal" class="btn btn-mini btn-info">查看</button>
+{#                    <button onclick="select(this)" data-toggle="modal" class="btn btn-mini btn-info">查看</button>#}
+                </label>
+            </div>
+
+            <div class="quick-actions span12">
+                <div class="container-fluid">
+                    <div class="row-fluid">
+                        <div class="span2">
+                            <a id="savecfg" style="cursor: pointer" class="btn btn-info btn-mini">保存并生效</a>
+                            <a id="reboot" style="cursor: pointer" class="btn btn-success btn-mini">重启</a>
+                        </div>
+                        <div class="show">
+                            <div class="demo">
+                                <textarea contenteditable="true" id="hacontent"  style="margin: 0px 0px 0px;width: 1110px;height: 500px">
+
+                                </textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="selectModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="left: 40%;width: 870px">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">HAproxy Info</h4>
+            </div>
+            <div class="modal-body" >
+                <textarea contenteditable="true" id="ha-info" style="width:100%;height: 100%;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function () {
+    ha_socket('status');
+    ha_cfg();
+});
+
+function ha_socket(command) {
+    var urls = window.location.host;
+    if(window.s){window.s.close()}
+    var socket = new WebSocket("ws://"+urls+"/apps/haproxy/command/");
+
+    socket.onopen = function (event) {
+        socket.send(command);
+    }
+
+    socket.onmessage = function (p1) {
+        returndata = JSON.parse(p1.data);
+        if (returndata.status == 'error'){
+            document.getElementById('status').style.color='red'
+        }
+        else {
+            document.getElementById('status').style.color='green'
+        }
+        var run = document.getElementById('run');
+        run.append(returndata.info)
+
+    };
+
+    if(socket.readyState == WebSocket.OPEN)socket.onopen();
+    window.s = socket;
+    if(!window.s){alert("websocket未连接.");}
+    window.onbeforeunload = function () {
+        socket.send('quit');
+        closeWebSocket();
+    }
+}
+
+function ha_cfg() {
+    var htmlObj = $.ajax({
+        url: "/apps/haproxy/content/",
+        type: 'post',
+        async: false,
+    })
+    $("#hacontent").html(htmlObj.responseText)
+}
+
+function select(self) {
+    var info = document.getElementById("ha-info");
+    var selectObj = $.ajax({
+        url: "/apps/haproxy/status_info/",
+        type: 'get',
+        async: false,
+    })
+    info.style.width='840px';
+    info.style.height='440px';
+    $("#ha-info").html(selectObj.responseText)
+}
+
+$("#savecfg").on('click',function () {
+    var content = $("#hacontent").val();
+    $.ajax({
+        url: "/apps/haproxy/save_cfg/",
+        type: 'post',
+        data: {'textarea':content},
+        dataType: "json",
+        success:function (data) {
+            alert(data.info)
+            window.location.reload()
+
+        }
+    })
+})
+
+$("#reboot").on('click',function () {
+    $("#run").html('重启中...')
+    $.ajax({
+        url: '/apps/haproxy/restart/',
+        type: 'post',
+        success:function (data) {
+            var obj = JSON.parse(data);
+            alert(obj.info);
+            window.location.reload()
+        }
+    })
+})
+
+</script>
+
+
+{% endblock %}
