@@ -1,0 +1,4 @@
+epel-release
+python36
+python34-pip
+haproxy

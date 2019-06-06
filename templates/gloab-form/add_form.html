@@ -19,47 +19,52 @@
     </div>
 
     <div class="row-fluid">
-        <div class="span12" style="width: 90%">
+        <div class="span12" style="width: 100%;line-height: 50%">
             <div class="widget-box">
                 <div id="generalTabContent" class="tab-content responsive">
                     <div id="alert-tab" class="tab-pane fade in active">
-                         <form method="post">{% csrf_token %}
-                            <div class="modal-body">
-                                <div class="modal-body" >
+                         <form method="post" enctype="multipart/form-data">{% csrf_token %}
+                            <div class="modal-body"  style="max-height: 100%" >
+                                <div class="modal-body">
                                      <form class="form-horizontal" method="post">{% csrf_token %}
                                     {% for field in form_obj %}
-
-                                        <div class="form-group ">
-                                            <label class=" span1" id="{{ field.name }}" style="width: 9%;font-size: 12px">{{ field.label }}：</label>
+                                        {% if field.name == 'ssl' %}
+                                        <br>
+                                        <div class="form-group" id="form-{{ field.name }}">
+                                            <label class=" span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
+                                            <input type="file" title="选择证书文件" name="ssl">
+                                            <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
+                                        </div>
+                                        {% else %}
+                                        <br>
+                                        <div class="form-group" id="form-{{ field.name }}">
+                                            <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
                                             {{ field }}
                                             <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
                                         </div>
-                                        <br>
+
+                                        {% endif %}
                                     {% endfor %}
+                                     <div class="form-group" id="form-{{ field.name }}">
+                                         <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
+                                         {{ field }}
+                                         <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
+                                     </div>
                                      </form>
                                 </div>
                                  <div class="form-group">
                                     <div class="span8">
-                                        <input type="submit" class="btn btn-info" value="保存">
+                                        <input type="button" id="but" class="btn btn-info" value="保存">
+                                        <input type="submit" id="submits" style="display: none" value="">
                                     </div>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-
-                    <div id="note-tab" class="tab-pane fade" >
-                        <p>请下载Excel文件, 按照格式填写主机信息, 上传导入. <a href="/asset/{{ app_name }}/{{ model_name }}/download/" style="color: #1a1ad2">点击下载模板</a></p>
-                        <p></p>
-                        <form id="upfile" action="/asset/{{ app_name }}/{{ model_name }}/upload/" method="post" enctype="multipart/form-data" target="file">
-                            <input  type="file" name="upfile" />
-                            <input type="submit" value="导入配置" class="btn-success btn btn-sm" >
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 
@@ -67,29 +72,51 @@
 
 <script src="/static/js/jquery.js"></script>
 <script>
+$(function () {
+    var ssld = document.getElementById('form-ssl');
+    displays(ssld,'none')
+})
 
-    $(function () {
-        $("#upload").click(function () {
-            document.getElementById('files').submit();
-        })
-    })
-
-    $("#id_types").change(function () {
-        new_id = $(this).val();
-        heigths = document.getElementById('height');
-        id_heigths = document.getElementById('id_height');
-        console.log('newid',new_id)
-        console.log('heigths',heigths)
-        console.log('id_heigths',id_heigths)
-        if (new_id > 1){
-            heigths.style.display='none'
-            id_heigths.style.display='none'
+$("#id_name").change(function () {
+    var path = window.location.pathname;
+    var content = this.value;
+    var r = /^[a-zA-Z0-9_]{0,}$/;
+    if (path=="/apps/asset/list/add/"){
+        if (r.test(content) ){
+            $("#name_errors")[0].innerText = ''
         }
         else {
-            heigths.style.display='block'
-            id_heigths.style.display='block'
+            $("#name_errors")[0].innerText = '只允许填写"字母:a-zA-Z；数字:0-9和下横线:_"'
         }
-    })
+    }
+})
+
+
+$("#id_http").change(function () {
+    var http_val = this.value;
+    var ssld = document.getElementById('form-ssl');
+    if (http_val == 0){
+        displays(ssld,'none')
+    }else {
+        displays(ssld,'block')
+    }
+})
+
+function displays(ssld,func) {
+    ssld.style.display = func;
+    return true
+}
+
+$("#but").click(function () {
+    var error = $("#name_errors")[0].innerText ;
+
+    if (error != ""){
+        alert('有错误内容，请重新填写')
+    }
+    else {
+        $("#submits").click()
+    }
+})
 
 
 </script>

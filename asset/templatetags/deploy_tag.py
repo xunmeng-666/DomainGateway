@@ -10,7 +10,6 @@ def build_project_verbose_name(admin_class):
 
 @register.simple_tag
 def get_filter_condtions_string(filter_conditions,q_val):
-    print('q_val',q_val)
     condtion_str = ""
     if q_val:#拼接search 字段
         condtion_str += "&_q=%s" % q_val
@@ -73,3 +72,49 @@ def get_m2m_objects(admin_class,field_name,selected_objs):
     field_obj = getattr(admin_class.model,field_name)
     all_objects = field_obj.rel.to.objects.all()
     return set(all_objects) - set(selected_objs)
+
+@register.simple_tag
+def build_groups(admin_class,row):
+    return admin_class.model.objects.filter(id=row.id).values('assetgroup__name')[0]['assetgroup__name']
+
+@register.simple_tag
+def build_asset_code(row,admin_class):
+    ele_td = ''
+
+    ids = admin_class.model.objects.filter(name=row).values('assetcheck__status_code')
+    if ids[0]['assetcheck__status_code'] == 200:
+        td = "<td style='text-align: center;font-size: 14px;color: #37c532;font-weight: bold'>可访问</td>"
+    else:
+        td = "<td style='text-align: center;font-size: 14px;color:#FF0018 ;font-weight: bold'>不可访问</td>"
+    ele_td += td
+    return mark_safe(ele_td)
+
+@register.simple_tag
+def build_logs_info(obj):
+    ele = ""
+    for content in obj.values():
+        ele_tr = "<tr>"
+        ele_td = "<td>%s</td>" %content["date"].strftime("%Y-%m-%d %H:%M:%S")
+        ele_td += "<td>%s</td>" %content["user"]
+        ele_td += "<td>%s</td>" %content["action"]
+        ele_td += "<td>%s</td>" %content["content"]
+        ele_tr += ele_td
+        ele_tr += "</tr>"
+        ele += ele_tr
+    return mark_safe(ele)
+
+@register.simple_tag
+def build_option_user(obj):
+    ele = ""
+    for user in obj.values('user').distinct():
+        ele_option = "<option label='%s' value='%s'></option>" %(user['user'],user['user'])
+        ele += ele_option
+    return mark_safe(ele)
+
+@register.simple_tag
+def build_option_action(obj):
+    ele = ""
+    for user in obj.values('action').distinct():
+        ele_option = "<option label='%s' value='%s'></option>" %(user['action'],user['action'])
+        ele += ele_option
+    return mark_safe(ele)

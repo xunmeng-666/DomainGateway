@@ -52,13 +52,9 @@
 
     function bindBtn() {
         $('#save').click(function () {
-            console.log('点击1');
             var p = $("#old_password").val();
-            console.log('点击2');
             var new_p = $("#new_password").val();
-            console.log('点击3');
             var re_p = $("#re_password").val();
-            console.log('点击4');
             $.ajax({
 {#                                    header:{"X-CSRFToken":$.cookie('csrftoken')},#}
                 url: '/change_password/',
@@ -66,7 +62,6 @@
                 data: {pwd:p,new_pwd:new_p,re_pwd:re_p},
 
                 success:function (data) {
-                    console.log('点击5');
                     var data_dict = JSON.parse(data);
                     if(data_dict.status){
                         alert('密码修改成功,即将重新登录系统');
@@ -88,7 +83,7 @@
     <ul>
         <li class="active"><a href="/"><i class="icon icon-desktop"></i>
             <span>访问列表</span></a> </li>
-        <li class="submenu"><a href="#"><i class="icon icon-cloud"></i> <span>网站</span></a>
+        <li class="submenu "><a href="#"><i class="icon icon-cloud"></i> <span>网站</span></a>
             <ul>
                 <li>
                     <a href="/apps/asset/list/"><span>网站列表</span></a>
@@ -97,11 +92,12 @@
             </ul>
         </li>
 
-        <li > <a href="/asset/logs/"><i class="icon icon-book"></i> <span>日志</span></a> </li>
+        <li class="dropdown-submenu " > <a href="/apps/asset/haproxy/"><i class="icon icon-book"></i> <span>HAproxy</span></a> </li>
+        <li class="dropdown-submenu "> <a href="/apps/logs/"><i class="icon icon-book"></i> <span>日志</span></a> </li>
         <li class="submenu"><a href="#"><i class="icon icon-cog"></i> <span>设置</span></a>
         <ul>
-            <li><a href="/asset/system/settings/"><span>系统设置</span></a> </li>
-            <li><a href="/asset/system/admin/"><span>用户管理</span></a> </li>
+            <li><a href="#"><span>系统设置</span></a> </li>
+            <li><a href="#"><span>用户管理</span></a> </li>
         </ul>
         </li>
     </ul>

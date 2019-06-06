@@ -1,0 +1,261 @@
+{% extends 'bash/bash-index.html' %}
+{% block head%}
+
+{% endblock %}
+{% block centent %}
+{% load deploy_tag %}
+<div id="content-header">
+    <ol class="breadcrumb" style="background-color: #ffffff">
+        <a href="/" class="tip-bottom" data-original-title="Go to Home"><i class="icon-home"></i>Home </a>>
+        <a href="/asset/{{ model_name }}/" class="tip-bottom" data-original-title="">{% build_project_verbose_name admin_class %}</a>>
+        <a href="/asset/{{ model_name }}/" title="数据中心信息表" class="tip-bottom" data-original-title="">{% build_project_verbose_name admin_class %}信息表</a>
+    </ol>
+    <div class="col-lg-12 class-title">
+        <div class="ibox float-e-margins" id="all">
+            <div class="quick-actions">
+                <h2>{% build_project_verbose_name admin_class %}</h2>
+            </div>
+            <div class="row-fluid">
+            {% if model_name != 'logs' %}
+                <div class="span9">
+                    <div class="col-sm-1">
+                        <a href="/asset/{{ app_name }}/{{ model_name }}/add/" class="btn btn-success btn-sm">添加{% build_project_verbose_name admin_class %}</a>
+                    </div>
+                </div>
+                <form >
+                    <div id="search" style="top: 107px;">
+                        <input type="search" name="_q" value="{% if q_val %}{{ q_val }}{% endif %}" placeholder="{% for s_field in admin_class.search_fields%}{{ s_field }} {% endfor %}" PLACEHOLDER="搜索" />
+                        <button type="submit" class="tip-bottom" data-original-title="Search"><i class="icon-search icon-white"></i></button>
+                    </div>
+                </form>
+            {% else %}
+
+            <div class="span12">
+
+                <select id="historical_data" style="width: 80px">
+                    <option label="选择日期" value="now"></option>
+                    <option label="全部日志" value="all"></option>
+                    <option label="今天日志" value="one_date"></option>
+                    <option label="三天日志" value="three_date"></option>
+                    <option label="七天日志" value="seven_date"></option>
+                    <option label="十五天日志" value="fifteen_date"></option>
+
+                </select>
+
+
+                <select id="select_users" style="width: 80px">
+                    <option label="选择用户" value="now"></option>
+                    <option label="全部" value="all"></option>
+                    {% build_option_user obj %}
+
+                </select>
+                <select id="select_action" style="width: 80px">
+                    <option label="选择行为" value="now"></option>
+                    <option label="全部" value="all"></option>
+                    {% build_option_action obj %}
+                </select>
+
+            </div>
+            {% endif %}
+            </div>
+            {% get_filter_condtions_string filter_conditions q_val as  filter_condtions_string %}
+            <div class="container-fluid">
+                <div class="row-fluid">
+                    <form method="post" >{% csrf_token %}
+                        <table class="table table-bordered ">
+                            <thead>
+                                <tr>
+
+                                    <th style="width: 13%">日期</th>
+                                    <th style="width: 12%">用户</th>
+                                    <th style="width: 12%">行为</th>
+                                    <th>内容</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody" class="tab-content responsive">
+
+                                {% if model_name == 'logs' %}
+                                    {% build_logs_info obj %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="content">
+                            <tr>
+                                <td><input onclick="all_del_file(this) "  type='button' class='btn btn-danger btn-mini' value='删除' /></td>
+                            </tr>
+                        </div>
+                    </form>
+                    <div class="pagination">
+                        <ul class="pagination">
+                            <li class=""><a href="?_page=1{{ filter_condtions_string }}">首页 </a></li>
+                            {% for p in paginator.page_range %}
+                                {% get_abs_value p  querysets.number as i %}
+                                {% if i < 3 %}
+                                    {% if p == querysets.number %}
+                                        <li class="active"><a href="?_page={{ p }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">{{ p }} </a></li>
+                                    {% else %}
+                                        <li class=""><a href="?_page={{ p }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">{{ p }}</a></li>
+                                    {% endif %}
+{#                                {% else %}#}
+{#                                    <li class=""><a href="?_page={{ p }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">{{ p }}</a></li>#}
+                                {% endif %}
+                            {% endfor %}
+                            <li class="">
+                                <a  href="?_page={{ paginator.num_pages }}{{ filter_condtions_string }}&_o={{ last_orderby_key }}">尾页</a>
+                            </li>
+                            <li class="">
+                                <a>总计 {{ querysets.paginator.num_pages }}页</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+<script>
+
+function all_del_file(self) {
+    var check = document.getElementsByName("_selected_obj");
+    console.log('check',check);
+    var len = check.length;
+    var idAll = "";
+    for (var i = 0; i<len;i++){
+        if(check[i].checked){
+            idAll += check[i].value+',';
+        }
+    }
+    if(idAll == ''){
+        var td_id = $(this).closest('tr').find('th').eq(1).text();
+        idAll = td_id + ',' ;
+    }
+    console.log('idall',idAll);
+    $.ajax({
+        url:"/asset/{{ app_name }}/{{ model_name }}/del/?idAll=" + idAll,
+        type: 'post',
+        success:function (data) {
+            alert('删除成功',data);
+            location.reload(true)
+        }
+    })
+}
+
+function checkAll(self) {
+    if ( $(self).prop('checked')){
+
+        $("table .row-obj").prop('checked',true)
+    }else {
+         $("table .row-obj").prop('checked',false)
+    }
+}
+
+
+$("#historical_data").change(function () {
+
+    dataFunc()
+});
+$("#select_users").change(function () {
+    dataFunc()
+
+});
+$("#select_action").change(function () {
+    dataFunc()
+
+});
+
+function get_date() {
+    var day = document.getElementById('historical_data').value;
+    console.log('day',day)
+    if (day == 'now'){
+        day = 0
+    }
+    else if(day == 'one_date'){
+        day = 1
+    }
+    else if(day == 'three_date'){
+        day = 3
+    }
+    else if(day == 'seven_date'){
+        day = 7
+    }
+    else if(day == 'fifteen_date'){
+        day = 15
+    }
+    else if(day == 'all'){
+        day = 20000
+    }
+    return day
+}
+
+function get_user() {
+    var user = document.getElementById('select_users').value;
+    if(user=='now' || user=='all'){
+        user = null
+    }
+    return user
+}
+
+function get_action() {
+    var action = document.getElementById('select_action').value;
+    if (action == 'now' || user == 'all'){
+        action = null
+    }
+    return action
+}
+
+
+function dataFunc() {
+    console.log('func');
+    day = get_date();
+    user = get_user();
+    action = get_action();
+    ajaxData(day,user,action)
+}
+function ajaxData(day,user,action) {
+    $("#tbody").html();
+    $.ajax({
+        url: '/asset/logs/?day='+day+"&user="+user+"&action="+action,
+        type: 'post',
+        processData: false,
+        contentType: false,
+        success:function (data) {
+            var obj = JSON.parse(data)
+            console.log('data',obj)
+
+            ele = ""
+            for(var i =0;i<obj.data.length;i++){
+                console.log('key',obj.data[i].date)
+                console.log('key',obj.data[i].user)
+                console.log('key',obj.data[i].action)
+                console.log('key',obj.data[i].content)
+                ele_tr = "<tr>";
+                ele_td = "<td>"+obj.data[i].date+"</td>";
+                ele_td += "<td>"+obj.data[i].user+"</td>";
+                ele_td += "<td>"+obj.data[i].action+"</td>";
+                ele_td += "<td>"+obj.data[i].content+"</td>";
+                ele_tr += ele_td;
+                ele_tr += "</tr>";
+                ele += ele_tr
+            }
+            console.log('ele',ele)
+            $("#tbody").html(ele)
+       }
+    })
+}
+function ajax_users(user) {
+
+}
+
+function ajax_action(action) {
+
+}
+
+</script>
+{% endblock %}
