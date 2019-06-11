@@ -14,6 +14,7 @@ class Object(object):
     def join_url(self,list):
         self.url['host'] = []
         for field in list:
+            print('field',field)
             if field['http'] == 0:
                 http = 'http'
             else:
@@ -21,14 +22,16 @@ class Object(object):
             host = field['ip']
             port = field['dport']
             domain = field['domain']
+            verify = field.get("ssl")
             url = "%s://%s:%s" %(http,host,port)
-            self.url['host'].append({'id':field['id'],'http':http,'host':host,'port':port,'domain':domain,'url':url})
+            self.url['host'].append({'id':field['id'],'http':http,'host':host,'port':port,'domain':domain,'verify':verify,'url':url})
 
     def checkc_url(self):
         for url in self.url['host']:
             try:
-                status_code = self.session.head(url['url']).status_code
+                status_code = self.session.head(url['url'],verify=False).status_code
                 url['status_code'] = status_code
+
             except requests.ConnectionError:
                 status_code = 504
                 url['status_code'] = status_code
@@ -41,7 +44,7 @@ class Object(object):
             else:
                 AssetCheck.objects.create(asset_id=int(code['id']),status_code=int(code['status_code']))
 
-    def main(self):
+    def run(self):
 
         self.get_field()
         self.checkc_url()
@@ -55,5 +58,5 @@ if __name__ == '__main__':
     from asset.models import Asset,AssetCheck
     admin_class = Asset.objects.all()
     while True:
+        Object().run()
         time.sleep(300)
-        Object().main()

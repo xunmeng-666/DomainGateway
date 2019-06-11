@@ -41,6 +41,7 @@ def index(request):
 
     for app_name in site.registered_admins:
         admin_class = site.registered_admins[app_name]['asset']
+        haproxy.get_code(admin_class)
         querysets = queryset(request,admin_class)
 
     return render(request,'index.html',locals())
@@ -79,7 +80,7 @@ def table_obj_add(request,model_name):
         form_obj = form(data=request.POST)
         if form_obj.is_valid():
             form_obj.save()
-            haproxy.buildcfg(admin_class)
+            haproxy.run(admin_class)
             logger.logger_info("user %s add data: %s" % (request.user,request.POST))
             savelog.log_info(request.user,'INFO',"add data: %s" %request.POST)
             return redirect("/apps/%s/list"%model_name)
@@ -110,7 +111,7 @@ def table_obj_change(request,model_name,no_render=False):
         form_obj = form(instance=obj, data=request.POST)
         if form_obj.is_valid():
             form_obj.save()
-            haproxy.buildcfg(admin_class)
+            haproxy.run(admin_class)
             logger.logger_info("user %s change data: %s" % (request.user, admin_class.model.objects.filter(id=object_id).values()[0]))
             savelog.log_info("%s"%request.user,"INFO"," change data: %s" %admin_class.model.objects.filter(id=object_id).values()[0])
             return redirect("/apps/%s/list" % model_name)
@@ -135,7 +136,7 @@ def table_obj_del(request,model_name):
                 admin_class.model.delete(admin_class.model.objects.get(id=id))
                 success_count += 1
             error_count += 1
-        haproxy.buildcfg(admin_class)
+        haproxy.run(admin_class)
         status.update({'success':success_count,'error':error_count})
         return HttpResponse(json.dumps(status))
     else:
@@ -144,7 +145,7 @@ def table_obj_del(request,model_name):
         savelog.log_info("%s" % request.user, "Warning",
                          "delete data: %s" % admin_class.model.objects.filter(id=obj_id).values()[0])
         admin_class.model.delete(admin_class.model.objects.get(id=obj_id))
-        haproxy.buildcfg(admin_class)
+        haproxy.run(admin_class)
         return redirect("/apps/%s/list" %model_name)
 
 def queryset(request,admin_class,no_render=False):

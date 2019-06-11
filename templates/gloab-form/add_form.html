@@ -31,14 +31,15 @@
                                         {% if field.name == 'ssl' %}
                                         <br>
                                         <div class="form-group" id="form-{{ field.name }}">
-                                            <label class=" span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
+                                            <label class=" span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}</label>
                                             <input type="file" title="选择证书文件" name="ssl">
                                             <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
                                         </div>
                                         {% else %}
+
                                         <br>
                                         <div class="form-group" id="form-{{ field.name }}">
-                                            <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
+                                            <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}</label>
                                             {{ field }}
                                             <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
                                         </div>
@@ -46,7 +47,7 @@
                                         {% endif %}
                                     {% endfor %}
                                      <div class="form-group" id="form-{{ field.name }}">
-                                         <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}：</label>
+                                         <label class="span1" id="{{ field.name }}" style="font-size: 12px;width: 9%">{{ field.label }}</label>
                                          {{ field }}
                                          <span style="color: red" id="{{ field.name }}_errors">{{ field.errors.0 }}  </span>
                                      </div>

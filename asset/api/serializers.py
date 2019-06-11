@@ -13,10 +13,11 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         if self.validated_data['ssl']:
             self.validated_data['ssl'] = haproxy.savessl(self.validated_data['ssl'])
         super(self.__class__,self).save(**kwargs)
-        haproxy.buildcfg(Asset.objects)
+        haproxy.run(Asset.objects)
 
 
 class AssetGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AssetGroup
         fields = "__all__"
+

@@ -17,6 +17,9 @@ class AssetGroupAdmin(BaseAdmin):
     list_per_page = 10
     search_fields = ['name']
 
+class AssetCheckAdmin(BaseAdmin):
+    list_display = ("id","asset_id",'status_code')
+
 class LogsAdmin(BaseAdmin):
     list_display = ('date', "user", 'action','content')
     list_filter = ['日期', '用户', '行为','内容']
@@ -25,5 +28,6 @@ class LogsAdmin(BaseAdmin):
 site.register(models.Asset,AssetAdmin)
 site.register(models.AssetGroup,AssetGroupAdmin)
 site.register(models.Logs,LogsAdmin)
+site.register(models.AssetCheck,AssetCheckAdmin)
 admin.site.register(models.Asset)
 admin.site.register(models.AssetGroup)

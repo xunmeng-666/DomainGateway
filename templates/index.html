@@ -64,9 +64,9 @@
                 <tbody id="tbody" class="tab-content table-bordered" style="background-color: #d0d0d0;opacity: 0.7;overflow: auto;">
                     {% for row in querysets.querysets %}
                         <tr style="opacity: 1">
-                            {% if 'http'  in row.domain or 'https' in row.domain %}
-                                <td style="text-align: center;font-size: 14px">
-                                    <a href="{{ row.domain }}:{{ row.sport }}"  >
+                            {% if row.http == 1 %}
+                                <td style="text-align: center;font-size: 14px;font-weight: bold; ">
+                                    <a href="https://{{ row.domain }}:{{ row.sport }}"  >
                                         {{ row.domain }}:{{ row.sport }}
                                     </a>
                                 </td>
@@ -78,8 +78,8 @@
                                     </a>
                                 </td>
                                 <td style="text-align: center;font-size: 14px;color: #212121c4;font-weight: bold">{{ row.name }}</td>
-                                {% build_asset_code row.name admin_class %}
                             {% endif %}
+                            {% build_asset_code row.name admin_class %}
                         </tr>
 
                     {% endfor %}

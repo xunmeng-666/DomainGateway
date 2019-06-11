@@ -2,7 +2,10 @@
 import subprocess
 import json
 import os
+import requests
 from django.utils.datastructures import MultiValueDictKeyError
+from checkurl import Object
+
 
 class HaproxyFunc(object):
     def __init__(self):
@@ -15,6 +18,7 @@ class HaproxyFunc(object):
         self.config_file = '/etc/haproxy/haproxy.cfg'
         self.sslfile_path = '/etc/haproxy/ssl/'
         self.statusd = {"status": '', 'info': ''}
+        self.session = requests.session()
 
     def variable(self,request):
         # 解析request.POST中的value
@@ -184,52 +188,60 @@ listen stats
                 self.dport = obj['dport']
                 self.domain = obj['domain']
                 self.crt = obj['ssl']
+                self.http = obj['http']
                 if obj['ssl'] is not None:
                     self.write_cfg(self.https_cfg(),new_file)
                 else:
                     self.write_cfg(self.http_cfg(),new_file)
+
             try:
                 os.remove(self.config_file)
             except FileNotFoundError:
                 pass
             os.rename(new_file,self.config_file)
-            cmd = self.shell("systemctl restart haproxy")
-            if cmd == 0:
-                return True
-            return False
+
+            cmd = self.shell("systemctl reload haproxy")
+            return info
         except KeyError as e:
             pass
 
+    def join_url(self,info):
+        _url = {'host':[]}
+        for field in info:
+            http = 'http'
+            host = field['ip']
+            port = field['dport']
+            domain = field['domain']
+            verify = field.get("ssl")
+            url = "%s://%s:%s" %(http,host,port)
+            _url['host'].append({'id':field['id'],'http':http,'host':host,'port':port,'domain':domain,'verify':verify,'url':url})
+        return _url
+    def checkc_url(self,_url):
+        for url in _url['host']:
+            try:
+                status_code = requests.get(url['url'],verify=False).status_code
+                url['status_code'] = status_code
+            except requests.ConnectionError:
+                status_code = 504
+                url['status_code'] = status_code
+        return _url
+    def save_code(self,admin_class,url):
+        assetcheck = admin_class.model.assetcheck_set.field.model
+        for code in url['host']:
+            if assetcheck.objects.filter(asset_id=code['id']):
+                as_id = assetcheck.objects.filter(asset_id=code['id']).values('id')[0]['id']
+                assetcheck.objects.filter(id=as_id).update(asset_id=int(code['id']),status_code=int(code['status_code']))
+            else:
+                assetcheck.objects.create(asset_id=int(code['id']),status_code=int(code['status_code']))
 
-    # def buildcfg(self,admin_class):
-    #
-    #     cfg = self.defalut_func()
-    #     new_file = "%s.bak" % self.config_file
-    #     info = admin_class.model.objects.values()
-    #     self.write(cfg,new_file)
-    #     try:
-    #         for obj in info:
-    #             print('obj',obj)
-    #             self.name = obj['name']
-    #             self.sport = obj['sport']
-    #             self.ip = obj['ip']
-    #             self.dport = obj['dport']
-    #             self.domain = obj['domain']
-    #             self.crt = obj['ssl']
-    #             print('crt',self.crt)
-    #             if self.crt:
-    #                 # self.crt = obj['ssl']
-    #                 self.write_cfg(self.https_cfg(),new_file)
-    #             else:
-    #                 self.write_cfg(self.http_cfg(), new_file)
-    #         self.save_cfg(new_file,self.config_file)
-    #         cmd = self.shell("systemctl restart haproxy")
-    #         if cmd == 0:
-    #             return True
-    #         return False
-    #     except KeyError as e:
-    #         print('Error',e)
+    def run(self,admin_class):
+        self.buildcfg(admin_class)
 
+    def get_code(self,admin_class):
+        info = admin_class.model.objects.values()
+        _url = self.join_url(info)
+        url = self.checkc_url(_url)
+        self.save_code(admin_class, url)
 
 class HAFunc(HaproxyFunc):
     # 解析前端指令，返回指令信息

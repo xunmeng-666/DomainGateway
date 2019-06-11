@@ -25,6 +25,8 @@ class Asset(models.Model):
     def __str__(self):
         return "%s" % self.name
 
+
+
 class AssetGroup(models.Model):
     name = models.CharField(verbose_name='组',max_length=32,unique=True)
     asset = models.ManyToManyField(Asset,verbose_name='网站列表',related_name='assetgroup',blank=True,null=True)
@@ -38,8 +40,8 @@ class AssetGroup(models.Model):
         return "%s" %self.name
 
 class AssetCheck(models.Model):
-    asset = models.ForeignKey(Asset)
-    status_code = models.IntegerField(blank=True,null=True)
+    asset = models.ForeignKey(Asset,)
+    status_code = models.IntegerField(blank=True,null=True,)
 
     class Meta:
         verbose_name = '状态'
